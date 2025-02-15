@@ -1,11 +1,25 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Map} from '../../components/maps/Map';
+import useLocationStore from '../../store/location/UseLocationStore';
+import {LoadingScreen} from '../loading/LoadingScreen';
 
 export const MapsScreen = () => {
+  const {lastKnownLocation, getLocation} = useLocationStore();
+
+  useEffect(() => {
+    if (lastKnownLocation === null) {
+      getLocation();
+    }
+  }, []);
+
+  if (lastKnownLocation === null) {
+    return <LoadingScreen />;
+  }
+
   return (
     <View style={styles.container}>
-      <Map initialLocation={{latitude: 37.78825, longitude: -122.4324}} />
+      <Map initialLocation={lastKnownLocation} />
     </View>
   );
 };
