@@ -1,6 +1,6 @@
 import React, {useRef, useEffect, useState} from 'react';
 import {StyleSheet} from 'react-native';
-import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import {Location} from '../../../infrastucture/interfaces/location';
 import {FAB} from '../ui/FAB';
 import useLocationStore from '../../store/location/UseLocationStore';
@@ -13,8 +13,13 @@ export const Map = ({showUserLocation = true, initialLocation}: Marker) => {
   const mapRef = useRef<MapView>();
   const [isFollowingUser, setIsFollowingUser] = useState(true);
   const cameraRef = useRef<Location>(initialLocation);
-  const {getLocation, lastKnownLocation, watchLocation, clearWatchLocation} =
-    useLocationStore();
+  const {
+    getLocation,
+    lastKnownLocation,
+    watchLocation,
+    clearWatchLocation,
+    userLocationList,
+  } = useLocationStore();
 
   const moveCamaraToLocation = (location: Location) => {
     if (!mapRef.current) {
@@ -63,6 +68,13 @@ export const Map = ({showUserLocation = true, initialLocation}: Marker) => {
           latitudeDelta: 0.015,
           longitudeDelta: 0.0121,
         }}>
+
+        <Polyline
+          coordinates={userLocationList}
+          strokeColor="violet"
+          strokeWidth={5}
+        />
+
         {/* este es un marcador */}
         {/* <Marker
           coordinate={{
