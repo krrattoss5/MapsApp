@@ -19,6 +19,8 @@ iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf' ] // Specify font files
 
 apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
 
+https://github.com/michalchudziak/react-native-geolocation
+
 
 
 

@@ -2,12 +2,16 @@ import React from 'react';
 import {StyleSheet} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {Location} from '../../../infrastucture/interfaces/location';
+import {getCurrentLocation} from '../../../actions/location/location';
 interface Marker {
   showUserLocation?: boolean;
   initialLocation: Location;
 }
 
 export const Map = ({showUserLocation = true, initialLocation}: Marker) => {
+  getCurrentLocation().then(location => {
+    console.log(location);
+  });
   return (
     <>
       <MapView
