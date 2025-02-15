@@ -1,8 +1,7 @@
-import React, {useRef} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import {StyleSheet} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {Location} from '../../../infrastucture/interfaces/location';
-import {getCurrentLocation} from '../../../actions/location/location';
 import {FAB} from '../ui/FAB';
 import useLocationStore from '../../store/location/UseLocationStore';
 interface Marker {
@@ -12,8 +11,10 @@ interface Marker {
 
 export const Map = ({showUserLocation = true, initialLocation}: Marker) => {
   const mapRef = useRef<MapView>();
+  const [isFollowingUser, setIsFollowingUser] = useState(true);
   const cameraRef = useRef<Location>(initialLocation);
-  const {getLocation, lastKnownLocation} = useLocationStore();
+  const {getLocation, lastKnownLocation, watchLocation, clearWatchLocation} =
+    useLocationStore();
 
   const moveCamaraToLocation = (location: Location) => {
     if (!mapRef.current) {
@@ -26,7 +27,6 @@ export const Map = ({showUserLocation = true, initialLocation}: Marker) => {
   const moveToCurrentLocation = async () => {
     if (!lastKnownLocation) {
       moveCamaraToLocation(initialLocation);
-      return;
     }
     const location = await getLocation();
     if (!location) {
@@ -35,6 +35,20 @@ export const Map = ({showUserLocation = true, initialLocation}: Marker) => {
     moveCamaraToLocation(location);
   };
 
+  useEffect(() => {
+    watchLocation();
+
+    return () => {
+      clearWatchLocation();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (lastKnownLocation && isFollowingUser) {
+      moveCamaraToLocation(lastKnownLocation);
+    }
+  }, [lastKnownLocation, isFollowingUser]);
+
   return (
     <>
       <MapView
@@ -42,6 +56,7 @@ export const Map = ({showUserLocation = true, initialLocation}: Marker) => {
         showsUserLocation={showUserLocation}
         provider={PROVIDER_GOOGLE}
         style={styles.map}
+        onTouchStart={() => setIsFollowingUser(false)}
         region={{
           latitude: cameraRef.current.latitude,
           longitude: cameraRef.current.longitude,
@@ -60,6 +75,14 @@ export const Map = ({showUserLocation = true, initialLocation}: Marker) => {
         /> */}
       </MapView>
 
+      <FAB
+        iconName={isFollowingUser ? 'walk-outline' : 'accessibility-outline'}
+        onPress={() => setIsFollowingUser(!isFollowingUser)}
+        style={{
+          bottom: 80,
+          right: 20,
+        }}
+      />
       <FAB
         iconName="compass-outline"
         onPress={moveToCurrentLocation}
